@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dani y Aarón — Pelis</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎬</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Pantalla 1: elegir persona -->
+  <section id="pantalla-persona" class="pantalla-persona">
+    <div class="marca-inicio">
+      <span class="marca-perforado" aria-hidden="true"></span>
+      <h1>Dani &amp; Aarón</h1>
+      <p>El registro de las pelis que vemos juntos.</p>
+    </div>
+    <div class="opciones-persona">
+      <button class="opcion-persona" data-persona="dani" style="--color-persona: var(--color-dani)">
+        <span class="nombre-persona">Dani</span>
+        <span class="ayuda-persona">Entrar como Dani</span>
+      </button>
+      <button class="opcion-persona" data-persona="aaron" style="--color-persona: var(--color-aaron)">
+        <span class="nombre-persona">Aarón</span>
+        <span class="ayuda-persona">Entrar como Aarón</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Pantalla 2: la app -->
+  <section id="pantalla-app" class="pantalla-app oculto">
+
+    <header class="cabecera">
+      <h1 class="logo">Dani &amp; Aarón</h1>
+
+      <form id="form-buscar" class="buscador" autocomplete="off">
+        <input id="input-buscar" type="text" placeholder="Buscar una peli para añadir…" />
+        <button type="submit">Buscar</button>
+      </form>
+
+      <div class="usuario-actual">
+        <span id="insignia-usuario" class="insignia-persona"></span>
+        <button id="btn-cambiar-persona" class="enlace-sutil">Cambiar</button>
+      </div>
+    </header>
+
+    <!-- Resultados de búsqueda (TMDb) -->
+    <section id="panel-resultados" class="panel-resultados oculto">
+      <div class="panel-resultados-cabecera">
+        <h2>Resultados</h2>
+        <button id="btn-cerrar-resultados" class="enlace-sutil">Cerrar</button>
+      </div>
+      <div id="lista-resultados" class="rejilla-resultados"></div>
+    </section>
+
+    <main class="contenido">
+      <div class="titulo-seccion">
+        <h2>Vistas juntos</h2>
+        <span id="contador-pelis" class="contador"></span>
+      </div>
+
+      <div id="rejilla-pelis" class="rejilla-pelis"></div>
+
+      <p id="estado-vacio" class="estado-vacio oculto">
+        Todavía no han registrado ninguna peli.<br />
+        Busquen una arriba para empezar el diario.
+      </p>
+    </main>
+
+    <!-- Panel de detalle de una peli -->
+    <aside id="panel-detalle" class="panel-detalle oculto">
+      <div class="panel-detalle-fondo" id="fondo-detalle"></div>
+      <div class="panel-detalle-contenido">
+        <button id="btn-cerrar-detalle" class="btn-cerrar" aria-label="Cerrar">✕</button>
+
+        <div class="detalle-cabecera">
+          <img id="detalle-poster" class="detalle-poster" alt="" />
+          <div class="detalle-info">
+            <h2 id="detalle-titulo"></h2>
+            <p id="detalle-meta" class="detalle-meta"></p>
+            <p id="detalle-sinopsis" class="detalle-sinopsis"></p>
+            <p id="detalle-agregada" class="detalle-agregada"></p>
+          </div>
+        </div>
+
+        <div class="detalle-resenas">
+          <h3>Reseñas</h3>
+          <div id="resena-dani" class="tarjeta-resena" style="--color-persona: var(--color-dani)"></div>
+          <div id="resena-aaron" class="tarjeta-resena" style="--color-persona: var(--color-aaron)"></div>
+        </div>
+
+        <button id="btn-quitar-pelicula" class="enlace-sutil enlace-peligro">Quitar esta peli del diario</button>
+      </div>
+    </aside>
+
+  </section>
+
+  <div id="mensaje-flash" class="mensaje-flash oculto"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
