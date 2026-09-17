@@ -85,6 +85,23 @@ dani-y-aaron/
 └── README.md          Este archivo
 ```
 
+## Novedades
+
+- **Por ver / Ya vistas**: dos pestañas separan lo pendiente de lo visto.
+  Al agregar una peli cae en "Por ver"; desde el panel de detalle se marca
+  como vista eligiendo la fecha (editable después).
+- **Promedio en el póster**: si al menos uno de los dos puntuó una peli
+  vista, aparece una insignia con el promedio directamente en la rejilla.
+- **Estadísticas**: el botón "📊 Estadísticas" del encabezado abre un
+  resumen tipo *wrapped* — total de vistas y pendientes, promedio de cada
+  uno, la mejor puntuada, la más discutida (mayor diferencia entre los
+  dos) y la primera y última peli vista.
+- **Búsqueda con debounce**: los resultados de TMDb aparecen solos 450 ms
+  después de dejar de escribir (dos letras como mínimo), sin gastar
+  consultas de más.
+- **Estados de carga**: un spinner mientras carga el diario por primera
+  vez y otro mientras llegan los resultados de búsqueda.
+
 ## Cómo funciona por dentro
 
 - Cada peli agregada es un documento en la colección `peliculas` de

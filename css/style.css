@@ -264,6 +264,65 @@ button {
   margin: 0 auto;
 }
 
+/* ---------- Pestañas Ya vistas / Por ver ---------- */
+
+.pestanas {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--borde);
+}
+
+.pestana {
+  background: none;
+  border: none;
+  color: var(--texto-tenue);
+  font-family: var(--fuente-ui);
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 0.6rem 0.2rem;
+  margin-right: 1.25rem;
+  border-bottom: 2px solid transparent;
+  transform: translateY(1px);
+}
+
+.pestana:hover { color: var(--texto); }
+
+.pestana.activa {
+  color: var(--texto);
+  border-bottom-color: var(--acento);
+}
+
+/* ---------- Estado de carga ---------- */
+
+.estado-cargando {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  color: var(--texto-tenue);
+  padding: 3rem 1rem;
+  font-size: 0.9rem;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--borde);
+  border-top-color: var(--acento);
+  border-radius: 50%;
+  display: inline-block;
+  animation: girar 0.7s linear infinite;
+}
+
+@keyframes girar {
+  to { transform: rotate(360deg); }
+}
+
+.resultado-cargando {
+  grid-column: 1 / -1;
+}
+
 .titulo-seccion {
   display: flex;
   align-items: baseline;
@@ -337,6 +396,30 @@ button {
   height: 10px;
   border-radius: 50%;
   border: 1.5px solid rgba(16,19,26,0.6);
+}
+
+.insignia-promedio {
+  position: absolute;
+  bottom: 2.55rem;
+  left: 0.5rem;
+  background: rgba(16, 19, 26, 0.82);
+  color: var(--acento);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  backdrop-filter: blur(2px);
+}
+
+.insignia-porver {
+  position: absolute;
+  bottom: 2.55rem;
+  left: 0.5rem;
+  background: rgba(16, 19, 26, 0.82);
+  color: var(--texto-tenue);
+  font-size: 0.72rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
 }
 
 .estado-vacio {
@@ -425,6 +508,100 @@ button {
   font-size: 0.78rem;
   color: var(--texto-tenue);
   margin: 0;
+}
+
+.detalle-estado-visto {
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 0.9rem 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.88rem;
+}
+
+.detalle-estado-visto .fila-marcar {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.detalle-estado-visto input[type="date"] {
+  background: var(--superficie-2);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  color: var(--texto);
+  padding: 0.4rem 0.6rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+}
+
+.detalle-estado-visto button.marcar-vista {
+  background: var(--acento);
+  color: #14171d;
+  border: none;
+  border-radius: var(--radio);
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.detalle-estado-visto .fecha-vista-texto {
+  color: var(--texto-tenue);
+}
+
+/* ---------- Panel de estadísticas ---------- */
+
+.titulo-estadisticas {
+  font-family: var(--fuente-display);
+  font-size: 1.5rem;
+  margin: 0 0 1.5rem;
+  padding-right: 2rem;
+}
+
+.contenido-estadisticas {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.grupo-stat {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.tarjeta-stat {
+  background: var(--superficie-2);
+  border-radius: var(--radio);
+  padding: 0.9rem;
+  text-align: center;
+}
+
+.tarjeta-stat .valor-stat {
+  font-family: var(--fuente-display);
+  font-size: 1.6rem;
+  display: block;
+}
+
+.tarjeta-stat .etiqueta-stat {
+  color: var(--texto-tenue);
+  font-size: 0.78rem;
+}
+
+.destacado-stat {
+  border-left: 3px solid var(--acento);
+  padding: 0.75rem 1rem;
+  background: var(--superficie-2);
+  border-radius: var(--radio);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.destacado-stat strong {
+  display: block;
+  font-family: var(--fuente-display);
+  font-size: 1rem;
+  margin-bottom: 0.2rem;
 }
 
 .detalle-resenas h3 {
