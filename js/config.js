@@ -10,12 +10,29 @@
 //    configuración que te da la consola (Configuración del proyecto ->
 //    tus apps -> SDK setup and configuration).
 export const configuracionFirebase = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_PROYECTO.firebaseapp.com",
-  projectId: "TU_PROYECTO",
-  storageBucket: "TU_PROYECTO.appspot.com",
-  messagingSenderId: "TU_SENDER_ID",
-  appId: "TU_APP_ID",
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyAq_b7Q3tr8ZIz9BxDVD_yZ2oVbiMwzWPA",
+    authDomain: "dani-y-aaron.firebaseapp.com",
+    projectId: "dani-y-aaron",
+    storageBucket: "dani-y-aaron.firebasestorage.app",
+    messagingSenderId: "764309271892",
+    appId: "1:764309271892:web:2b1c7e446ec40dc53204c1",
+    measurementId: "G-RCK4X0WFKD"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
 };
 
 // 2) Ve a https://www.themoviedb.org/settings/api, crea una cuenta
