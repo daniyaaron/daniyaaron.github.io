@@ -62,11 +62,15 @@
       <div class="pestanas">
         <button class="pestana activa" data-pestana="vista">Ya vistas</button>
         <button class="pestana" data-pestana="por_ver">Por ver</button>
+        <button class="pestana" data-pestana="linea">Línea de tiempo</button>
       </div>
 
       <div class="titulo-seccion">
-        <h2 id="titulo-lista">Vistas juntos</h2>
-        <span id="contador-pelis" class="contador"></span>
+        <div class="titulo-seccion-texto">
+          <h2 id="titulo-lista">Vistas juntos</h2>
+          <span id="contador-pelis" class="contador"></span>
+        </div>
+        <button id="btn-sorprendeme" class="boton-sorprendeme oculto">🎲 Sorpréndeme</button>
       </div>
 
       <div id="cargando-pelis" class="estado-cargando">
@@ -74,6 +78,8 @@
       </div>
 
       <div id="rejilla-pelis" class="rejilla-pelis oculto"></div>
+
+      <div id="linea-tiempo" class="linea-tiempo oculto"></div>
 
       <p id="estado-vacio" class="estado-vacio oculto"></p>
     </main>
@@ -90,7 +96,6 @@
             <h2 id="detalle-titulo"></h2>
             <p id="detalle-meta" class="detalle-meta"></p>
             <p id="detalle-sinopsis" class="detalle-sinopsis"></p>
-            <p id="detalle-agregada" class="detalle-agregada"></p>
           </div>
         </div>
 

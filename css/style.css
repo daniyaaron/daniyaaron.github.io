@@ -325,9 +325,31 @@ button {
 
 .titulo-seccion {
   display: flex;
-  align-items: baseline;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
   gap: 0.75rem;
   margin-bottom: 1.25rem;
+}
+
+.titulo-seccion-texto {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.boton-sorprendeme {
+  background: var(--superficie-2);
+  border: 1px solid var(--borde);
+  color: var(--texto);
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  font-size: 0.85rem;
+}
+
+.boton-sorprendeme:hover {
+  border-color: var(--acento);
+  color: var(--acento);
 }
 
 .titulo-seccion h2 {
@@ -411,22 +433,89 @@ button {
   backdrop-filter: blur(2px);
 }
 
-.insignia-porver {
-  position: absolute;
-  bottom: 2.55rem;
-  left: 0.5rem;
-  background: rgba(16, 19, 26, 0.82);
-  color: var(--texto-tenue);
-  font-size: 0.72rem;
-  padding: 0.15rem 0.5rem;
-  border-radius: 999px;
-}
-
 .estado-vacio {
   color: var(--texto-tenue);
   text-align: center;
   padding: 3rem 1rem;
   line-height: 1.6;
+}
+
+/* ---------- Línea de tiempo ---------- */
+
+.linea-tiempo {
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.linea-tiempo-pista {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+  padding: 0.5rem 0.5rem 1rem;
+  width: max-content;
+  min-width: 100%;
+}
+
+.hito-tiempo {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+  width: 110px;
+}
+
+.hito-tiempo img,
+.hito-tiempo .sin-poster {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: var(--radio);
+  background: var(--superficie-2);
+  transition: transform 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+}
+
+.hito-tiempo:hover img,
+.hito-tiempo:hover .sin-poster {
+  transform: scale(1.05);
+}
+
+.hito-eje {
+  width: 100%;
+  border-top: 2px solid var(--borde);
+  position: relative;
+  margin-top: 0.7rem;
+  padding-top: 0.6rem;
+}
+
+.hito-eje::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--acento);
+  border: 2px solid var(--bg);
+}
+
+.hito-tiempo:hover .hito-eje::before {
+  background: var(--color-dani);
+}
+
+.hito-fecha {
+  font-size: 0.75rem;
+  color: var(--texto-tenue);
 }
 
 /* ---------- Panel de detalle (deslizante) ---------- */
@@ -502,12 +591,6 @@ button {
   line-height: 1.5;
   color: #cdd2db;
   margin: 0 0 0.75rem;
-}
-
-.detalle-agregada {
-  font-size: 0.78rem;
-  color: var(--texto-tenue);
-  margin: 0;
 }
 
 .detalle-estado-visto {

@@ -101,6 +101,16 @@ dani-y-aaron/
   consultas de más.
 - **Estados de carga**: un spinner mientras carga el diario por primera
   vez y otro mientras llegan los resultados de búsqueda.
+- **Línea de tiempo interactiva**: una tercera pestaña muestra todas las
+  vistas ordenadas cronológicamente sobre un eje horizontal; se navega
+  arrastrando la barra de scroll o con la rueda del mouse, y cada póster
+  abre el mismo panel de detalle.
+- **Sin "agregada por"**: ya no se guarda ni se muestra quién sumó cada
+  peli — el diario es de los dos.
+- **Racha**: las estadísticas ahora también muestran cuántas vieron este
+  mes, la racha actual de meses seguidos viendo pelis y su récord.
+- **Modo "Sorpréndeme"**: en la pestaña "Por ver" hay un botón que elige
+  al azar una peli pendiente y abre su detalle.
 
 ## Cómo funciona por dentro
 

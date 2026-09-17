@@ -32,7 +32,7 @@ async function buscarEnTMDb(consulta) {
 let personaActual = localStorage.getItem("personaActual"); // "dani" | "aaron" | null
 let peliculas = []; // espejo local de la colección de Firestore
 let idPeliculaAbierta = null;
-let pestanaActual = "vista"; // "vista" | "por_ver"
+let pestanaActual = "vista"; // "vista" | "por_ver" | "linea"
 let cargandoInicial = true;
 let tokenBusqueda = 0;
 let temporizadorBusqueda;
@@ -51,9 +51,11 @@ const btnCerrarResultados = document.getElementById("btn-cerrar-resultados");
 
 const cargandoPelis = document.getElementById("cargando-pelis");
 const rejillaPelis = document.getElementById("rejilla-pelis");
+const lineaTiempoEl = document.getElementById("linea-tiempo");
 const contadorPelis = document.getElementById("contador-pelis");
 const tituloLista = document.getElementById("titulo-lista");
 const estadoVacio = document.getElementById("estado-vacio");
+const btnSorprendeme = document.getElementById("btn-sorprendeme");
 
 const panelDetalle = document.getElementById("panel-detalle");
 const fondoDetalle = document.getElementById("fondo-detalle");
@@ -100,7 +102,7 @@ btnCambiarPersona.addEventListener("click", () => {
   location.reload();
 });
 
-// ---------- Pestañas: Ya vistas / Por ver ----------
+// ---------- Pestañas: Ya vistas / Por ver / Línea de tiempo ----------
 document.querySelectorAll(".pestana").forEach((boton) => {
   boton.addEventListener("click", () => activarPestana(boton.dataset.pestana));
 });
@@ -110,7 +112,7 @@ function activarPestana(nombre) {
   document.querySelectorAll(".pestana").forEach((b) => {
     b.classList.toggle("activa", b.dataset.pestana === nombre);
   });
-  pintarRejilla();
+  pintarContenidoPrincipal();
 }
 
 // ---------- Sincronización en tiempo real con Firestore ----------
@@ -121,7 +123,7 @@ function suscribirseAPeliculas() {
       peliculas = instantanea.docs.map((d) => ({ id: d.id, ...d.data() }));
       cargandoInicial = false;
       cargandoPelis.classList.add("oculto");
-      pintarRejilla();
+      pintarContenidoPrincipal();
       if (idPeliculaAbierta) pintarDetalle(idPeliculaAbierta);
       if (!panelEstadisticas.classList.contains("oculto")) pintarEstadisticas();
     },
@@ -218,7 +220,6 @@ async function agregarPelicula(resultado) {
     anio: (resultado.release_date || "").slice(0, 4),
     poster_path: resultado.poster_path || null,
     sinopsis: resultado.overview || "Sin sinopsis disponible.",
-    agregadaPor: personaActual,
     fechaAgregada: serverTimestamp(),
     estado: "por_ver",
     fechaVista: null,
@@ -237,10 +238,47 @@ async function agregarPelicula(resultado) {
   }
 }
 
-// ---------- Rejilla principal ----------
-function pintarRejilla() {
+// ---------- Sorpréndeme ----------
+btnSorprendeme.addEventListener("click", () => {
+  const porVer = peliculas.filter((p) => (p.estado || "por_ver") === "por_ver");
+  if (!porVer.length) {
+    mostrarFlash("No tienen pelis pendientes para sortear.");
+    return;
+  }
+  const elegida = porVer[Math.floor(Math.random() * porVer.length)];
+  abrirDetalle(elegida.id);
+  mostrarFlash(`🎲 Les tocó "${elegida.titulo}"`);
+});
+
+// ---------- Contenido principal (rejilla o línea de tiempo) ----------
+function pintarContenidoPrincipal() {
   if (cargandoInicial) return;
 
+  btnSorprendeme.classList.toggle("oculto", pestanaActual !== "por_ver");
+
+  if (pestanaActual === "linea") {
+    tituloLista.textContent = "Línea de tiempo";
+    rejillaPelis.classList.add("oculto");
+    estadoVacio.classList.add("oculto");
+    lineaTiempoEl.classList.remove("oculto");
+
+    const vistas = peliculas
+      .filter((p) => (p.estado || "por_ver") === "vista" && p.fechaVista)
+      .sort((a, b) => a.fechaVista.localeCompare(b.fechaVista));
+
+    contadorPelis.textContent = vistas.length
+      ? `${vistas.length} ${vistas.length === 1 ? "peli" : "pelis"}`
+      : "";
+
+    pintarLineaTiempo(vistas);
+    return;
+  }
+
+  lineaTiempoEl.classList.add("oculto");
+  pintarRejilla();
+}
+
+function pintarRejilla() {
   const filtradas = peliculas
     .filter((p) => (p.estado || "por_ver") === pestanaActual)
     .sort((a, b) => {
@@ -295,8 +333,6 @@ function pintarRejilla() {
         .map((persona) => `<span class="punto-resena" style="background: var(--color-${persona})"></span>`)
         .join("");
       tarjeta.innerHTML += `<div class="puntos-resena">${puntos}</div>`;
-    } else {
-      tarjeta.innerHTML += `<span class="insignia-porver">Agregada por ${NOMBRES[peli.agregadaPor] || "?"}</span>`;
     }
 
     tarjeta.innerHTML += `
@@ -306,6 +342,53 @@ function pintarRejilla() {
 
     tarjeta.addEventListener("click", () => abrirDetalle(peli.id));
     rejillaPelis.appendChild(tarjeta);
+  });
+}
+
+// ---------- Línea de tiempo interactiva ----------
+lineaTiempoEl.addEventListener(
+  "wheel",
+  (evento) => {
+    const pista = lineaTiempoEl.querySelector(".linea-tiempo-pista");
+    if (!pista) return;
+    if (Math.abs(evento.deltaY) > Math.abs(evento.deltaX)) {
+      pista.scrollLeft += evento.deltaY;
+      evento.preventDefault();
+    }
+  },
+  { passive: false }
+);
+
+function pintarLineaTiempo(vistas) {
+  if (vistas.length === 0) {
+    lineaTiempoEl.innerHTML = `<p class="estado-vacio">Todavía no hay pelis vistas con fecha para armar la línea de tiempo.</p>`;
+    return;
+  }
+
+  const pista = document.createElement("div");
+  pista.className = "linea-tiempo-pista";
+
+  vistas.forEach((peli) => {
+    const hito = document.createElement("button");
+    hito.type = "button";
+    hito.className = "hito-tiempo";
+    hito.dataset.id = peli.id;
+    hito.innerHTML = `
+      ${peli.poster_path ? `<img src="${TMDB_IMG}${peli.poster_path}" alt="Póster de ${peli.titulo}" />` : `<div class="sin-poster">🎬</div>`}
+      <div class="hito-eje"></div>
+      <span class="hito-fecha">${formatearFechaCorta(peli.fechaVista)}</span>
+    `;
+    hito.title = peli.titulo;
+    hito.addEventListener("click", () => abrirDetalle(peli.id));
+    pista.appendChild(hito);
+  });
+
+  lineaTiempoEl.innerHTML = "";
+  lineaTiempoEl.appendChild(pista);
+
+  // arranca mostrando lo más reciente (a la derecha)
+  requestAnimationFrame(() => {
+    pista.scrollLeft = pista.scrollWidth;
   });
 }
 
@@ -338,9 +421,6 @@ function pintarDetalle(id) {
   document.getElementById("detalle-titulo").textContent = peli.titulo;
   document.getElementById("detalle-meta").textContent = peli.anio || "";
   document.getElementById("detalle-sinopsis").textContent = peli.sinopsis;
-  document.getElementById("detalle-agregada").textContent = peli.agregadaPor
-    ? `Añadida por ${NOMBRES[peli.agregadaPor]}`
-    : "";
 
   pintarEstadoVisto(peli);
   pintarTarjetaResena("dani", peli);
@@ -507,6 +587,51 @@ btnVerEstadisticas.addEventListener("click", () => {
 btnCerrarEstadisticas.addEventListener("click", () => panelEstadisticas.classList.add("oculto"));
 fondoEstadisticas.addEventListener("click", () => panelEstadisticas.classList.add("oculto"));
 
+function obtenerMesISO(fechaISO) {
+  return fechaISO.slice(0, 7); // "YYYY-MM"
+}
+
+function formatoMes(fecha) {
+  return `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function esMesSiguiente(mesA, mesB) {
+  const [anio, mes] = mesA.split("-").map(Number);
+  const fecha = new Date(anio, mes - 1, 1);
+  fecha.setMonth(fecha.getMonth() + 1);
+  return formatoMes(fecha) === mesB;
+}
+
+function calcularRacha(vistas) {
+  const meses = new Set(vistas.filter((p) => p.fechaVista).map((p) => obtenerMesISO(p.fechaVista)));
+  if (meses.size === 0) return { actual: 0, record: 0, esteMes: 0 };
+
+  const hoy = new Date();
+  const cursor = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+  if (!meses.has(formatoMes(cursor))) {
+    cursor.setMonth(cursor.getMonth() - 1);
+  }
+  let actual = 0;
+  while (meses.has(formatoMes(cursor))) {
+    actual++;
+    cursor.setMonth(cursor.getMonth() - 1);
+  }
+
+  const listaMeses = [...meses].sort();
+  let record = 0;
+  let rachaTemp = 0;
+  let mesAnterior = null;
+  listaMeses.forEach((mes) => {
+    rachaTemp = mesAnterior && esMesSiguiente(mesAnterior, mes) ? rachaTemp + 1 : 1;
+    record = Math.max(record, rachaTemp);
+    mesAnterior = mes;
+  });
+
+  const esteMes = vistas.filter((p) => p.fechaVista && obtenerMesISO(p.fechaVista) === formatoMes(hoy)).length;
+
+  return { actual, record, esteMes };
+}
+
 function calcularEstadisticas() {
   const vistas = peliculas.filter((p) => (p.estado || "por_ver") === "vista");
   const porVer = peliculas.filter((p) => (p.estado || "por_ver") === "por_ver");
@@ -550,8 +675,7 @@ function calcularEstadisticas() {
     masDebatida: mayorDiferencia > 0 ? masDebatida : null,
     primera,
     ultima,
-    agregadasDani: peliculas.filter((p) => p.agregadaPor === "dani").length,
-    agregadasAaron: peliculas.filter((p) => p.agregadaPor === "aaron").length,
+    racha: calcularRacha(vistas),
   };
 }
 
@@ -582,6 +706,21 @@ function pintarEstadisticas() {
         <span class="etiqueta-stat">promedio de Aarón</span>
       </div>
     </div>
+
+    <div class="grupo-stat">
+      <div class="tarjeta-stat">
+        <span class="valor-stat">${s.racha.esteMes}</span>
+        <span class="etiqueta-stat">vistas este mes</span>
+      </div>
+      <div class="tarjeta-stat">
+        <span class="valor-stat">${s.racha.actual}</span>
+        <span class="etiqueta-stat">${s.racha.actual === 1 ? "mes seguido" : "meses seguidos"}</span>
+      </div>
+      <div class="tarjeta-stat">
+        <span class="valor-stat">${s.racha.record}</span>
+        <span class="etiqueta-stat">récord de racha</span>
+      </div>
+    </div>
   `;
 
   if (s.mejor) {
@@ -596,7 +735,6 @@ function pintarEstadisticas() {
   if (s.ultima) {
     html += `<div class="destacado-stat"><strong>🍿 La más reciente</strong>${s.ultima.titulo}, el ${formatearFecha(s.ultima.fechaVista)}.</div>`;
   }
-  html += `<div class="destacado-stat"><strong>➕ Quién agrega más</strong>Dani agregó ${s.agregadasDani}, Aarón agregó ${s.agregadasAaron}.</div>`;
 
   contenidoEstadisticas.innerHTML = html;
 }
@@ -617,6 +755,13 @@ function formatearFecha(fechaISO) {
   const [anio, mes, dia] = fechaISO.split("-").map(Number);
   const fecha = new Date(anio, mes - 1, dia);
   return fecha.toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" });
+}
+
+function formatearFechaCorta(fechaISO) {
+  if (!fechaISO) return "";
+  const [anio, mes, dia] = fechaISO.split("-").map(Number);
+  const fecha = new Date(anio, mes - 1, dia);
+  return fecha.toLocaleDateString("es-ES", { day: "numeric", month: "short" });
 }
 
 let temporizadorFlash;
