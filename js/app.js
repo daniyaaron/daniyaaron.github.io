@@ -359,6 +359,34 @@ lineaTiempoEl.addEventListener(
   { passive: false }
 );
 
+function diasEntre(fechaIsoA, fechaIsoB) {
+  const [ay, am, ad] = fechaIsoA.split("-").map(Number);
+  const [by, bm, bd] = fechaIsoB.split("-").map(Number);
+  const a = new Date(ay, am - 1, ad);
+  const b = new Date(by, bm - 1, bd);
+  return Math.round((b - a) / (1000 * 60 * 60 * 24));
+}
+
+function formatearGapTiempo(dias) {
+  if (dias < 7) return `${dias} ${dias === 1 ? "día" : "días"} después`;
+  if (dias < 30) {
+    const semanas = Math.max(1, Math.round(dias / 7));
+    return `${semanas} ${semanas === 1 ? "semana" : "semanas"} después`;
+  }
+  if (dias < 365) {
+    const meses = Math.max(1, Math.round(dias / 30));
+    return `${meses} ${meses === 1 ? "mes" : "meses"} después`;
+  }
+  const anios = Math.max(1, Math.round(dias / 365));
+  return `${anios} ${anios === 1 ? "año" : "años"} después`;
+}
+
+function anchoSegmento(dias) {
+  // Escala logarítmica con techo: crece con el tiempo real transcurrido,
+  // pero un salto de años no estira el eje sin límite ni aplasta el resto.
+  return Math.round(Math.min(240, 28 + 30 * Math.log2(dias + 1)));
+}
+
 function pintarLineaTiempo(vistas) {
   if (vistas.length === 0) {
     lineaTiempoEl.innerHTML = `<p class="estado-vacio">Todavía no hay pelis vistas con fecha para armar la línea de tiempo.</p>`;
@@ -368,7 +396,19 @@ function pintarLineaTiempo(vistas) {
   const pista = document.createElement("div");
   pista.className = "linea-tiempo-pista";
 
-  vistas.forEach((peli) => {
+  vistas.forEach((peli, indice) => {
+    if (indice > 0) {
+      const dias = diasEntre(vistas[indice - 1].fechaVista, peli.fechaVista);
+      const segmento = document.createElement("div");
+      segmento.className = "segmento-tiempo";
+      segmento.style.width = `${anchoSegmento(dias)}px`;
+      segmento.innerHTML = `
+        <div class="segmento-espaciador"></div>
+        <div class="segmento-linea"></div>
+        ${dias >= 2 ? `<span class="segmento-etiqueta">${formatearGapTiempo(dias)}</span>` : ""}
+      `;
+      pista.appendChild(segmento);
+    }
     const hito = document.createElement("button");
     hito.type = "button";
     hito.className = "hito-tiempo";

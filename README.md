@@ -102,7 +102,11 @@ dani-y-aaron/
 - **Estados de carga**: un spinner mientras carga el diario por primera
   vez y otro mientras llegan los resultados de búsqueda.
 - **Línea de tiempo interactiva**: una tercera pestaña muestra todas las
-  vistas ordenadas cronológicamente sobre un eje horizontal; se navega
+  vistas ordenadas cronológicamente sobre un eje horizontal. La distancia
+  entre pósters refleja el tiempo real que pasó entre una y otra (con una
+  escala que se aplana para saltos muy largos, para que un hueco de meses
+  no aplaste el resto de la línea), y los tramos de más de un día llevan
+  una etiqueta ("2 semanas después", "3 meses después"...). Se navega
   arrastrando la barra de scroll o con la rueda del mouse, y cada póster
   abre el mismo panel de detalle.
 - **Sin "agregada por"**: ya no se guarda ni se muestra quién sumó cada

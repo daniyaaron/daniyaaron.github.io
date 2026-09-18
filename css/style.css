@@ -518,6 +518,32 @@ button {
   color: var(--texto-tenue);
 }
 
+.segmento-tiempo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.segmento-espaciador {
+  width: 100%;
+  height: 165px; /* misma altura que el póster de un hito (110px de ancho, 2:3) */
+}
+
+.segmento-linea {
+  width: 100%;
+  border-top: 2px solid var(--borde);
+  margin-top: 0.7rem;
+}
+
+.segmento-etiqueta {
+  font-size: 0.7rem;
+  color: var(--texto-tenue);
+  margin-top: 0.6rem;
+  white-space: nowrap;
+  text-align: center;
+}
+
 /* ---------- Panel de detalle (deslizante) ---------- */
 
 .panel-detalle {
