@@ -440,36 +440,96 @@ button {
   line-height: 1.6;
 }
 
-/* ---------- Línea de tiempo ---------- */
+/* ---------- Línea de tiempo (eje central, alternado arriba/abajo) ---------- */
 
 .linea-tiempo {
   overflow-x: auto;
-  padding-bottom: 0.5rem;
+  overflow-y: hidden;
+  padding: 1rem 0 1.5rem;
+  cursor: grab;
+}
+
+.linea-tiempo.arrastrando {
+  cursor: grabbing;
+  user-select: none;
 }
 
 .linea-tiempo-pista {
-  display: flex;
-  align-items: flex-start;
-  gap: 2rem;
-  padding: 0.5rem 0.5rem 1rem;
-  width: max-content;
-  min-width: 100%;
+  position: relative;
+  height: 440px;
+}
+
+.linea-tiempo-eje {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--borde) 4%,
+    var(--borde) 96%,
+    transparent
+  );
+  transform: translateY(-1px);
 }
 
 .hito-tiempo {
+  position: absolute;
+  top: 50%;
+  width: 108px;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
   background: none;
   border: none;
   padding: 0;
   font: inherit;
   color: inherit;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 0 0 auto;
-  width: 110px;
+  cursor: pointer;
 }
 
-.hito-tiempo img,
+.hito-tiempo.abajo {
+  flex-direction: column;
+  transform: translate(-50%, 0);
+}
+
+.hito-tiempo.arriba {
+  flex-direction: column-reverse;
+  transform: translate(-50%, -100%);
+}
+
+.hito-punto {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--acento);
+  border: 2px solid var(--bg);
+  flex-shrink: 0;
+  z-index: 2;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.hito-tiempo:hover .hito-punto {
+  transform: scale(1.35);
+  background: var(--color-dani);
+}
+
+.hito-conector {
+  width: 2px;
+  height: 22px;
+  background: var(--borde);
+  flex-shrink: 0;
+}
+
+.hito-fecha {
+  font-size: 0.72rem;
+  color: var(--texto-tenue);
+  white-space: nowrap;
+}
+
+.hito-poster,
 .hito-tiempo .sin-poster {
   width: 100%;
   aspect-ratio: 2 / 3;
@@ -480,68 +540,24 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.6rem;
+  font-size: 1.5rem;
 }
 
-.hito-tiempo:hover img,
+.hito-tiempo:hover .hito-poster,
 .hito-tiempo:hover .sin-poster {
   transform: scale(1.05);
 }
 
-.hito-eje {
-  width: 100%;
-  border-top: 2px solid var(--borde);
-  position: relative;
-  margin-top: 0.7rem;
-  padding-top: 0.6rem;
-}
-
-.hito-eje::before {
-  content: "";
+.etiqueta-gap {
   position: absolute;
-  top: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--acento);
-  border: 2px solid var(--bg);
-}
-
-.hito-tiempo:hover .hito-eje::before {
-  background: var(--color-dani);
-}
-
-.hito-fecha {
-  font-size: 0.75rem;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg);
+  padding: 0 0.5rem;
+  font-size: 0.65rem;
   color: var(--texto-tenue);
-}
-
-.segmento-tiempo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 0 0 auto;
-}
-
-.segmento-espaciador {
-  width: 100%;
-  height: 165px; /* misma altura que el póster de un hito (110px de ancho, 2:3) */
-}
-
-.segmento-linea {
-  width: 100%;
-  border-top: 2px solid var(--borde);
-  margin-top: 0.7rem;
-}
-
-.segmento-etiqueta {
-  font-size: 0.7rem;
-  color: var(--texto-tenue);
-  margin-top: 0.6rem;
   white-space: nowrap;
-  text-align: center;
+  z-index: 1;
 }
 
 /* ---------- Panel de detalle (deslizante) ---------- */

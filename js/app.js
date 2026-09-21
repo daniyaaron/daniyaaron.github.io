@@ -349,14 +349,52 @@ function pintarRejilla() {
 lineaTiempoEl.addEventListener(
   "wheel",
   (evento) => {
-    const pista = lineaTiempoEl.querySelector(".linea-tiempo-pista");
-    if (!pista) return;
     if (Math.abs(evento.deltaY) > Math.abs(evento.deltaX)) {
-      pista.scrollLeft += evento.deltaY;
+      lineaTiempoEl.scrollLeft += evento.deltaY;
       evento.preventDefault();
     }
   },
   { passive: false }
+);
+
+// Arrastrar con el mouse para recorrer la línea (con la rueda ya alcanza,
+// esto suma la sensación "tipo Porsche" de arrastrar la franja horizontal).
+let arrastrandoLinea = false;
+let arrastreOrigenX = 0;
+let arrastreScrollOrigen = 0;
+let arrastreSeMovio = false;
+
+lineaTiempoEl.addEventListener("pointerdown", (evento) => {
+  if (evento.pointerType !== "mouse") return; // en touch dejamos el scroll nativo
+  arrastrandoLinea = true;
+  arrastreSeMovio = false;
+  arrastreOrigenX = evento.clientX;
+  arrastreScrollOrigen = lineaTiempoEl.scrollLeft;
+  lineaTiempoEl.classList.add("arrastrando");
+});
+
+window.addEventListener("pointermove", (evento) => {
+  if (!arrastrandoLinea) return;
+  const delta = evento.clientX - arrastreOrigenX;
+  if (Math.abs(delta) > 4) arrastreSeMovio = true;
+  lineaTiempoEl.scrollLeft = arrastreScrollOrigen - delta;
+});
+
+window.addEventListener("pointerup", () => {
+  arrastrandoLinea = false;
+  lineaTiempoEl.classList.remove("arrastrando");
+});
+
+// Si hubo arrastre real, no dejamos que el click abra el detalle al soltar.
+lineaTiempoEl.addEventListener(
+  "click",
+  (evento) => {
+    if (arrastreSeMovio) {
+      evento.stopPropagation();
+      evento.preventDefault();
+    }
+  },
+  true
 );
 
 function diasEntre(fechaIsoA, fechaIsoB) {
@@ -381,10 +419,15 @@ function formatearGapTiempo(dias) {
   return `${anios} ${anios === 1 ? "año" : "años"} después`;
 }
 
+const HITO_ANCHO = 108; // debe coincidir con el ancho de .hito-tiempo en el CSS
+const HITO_MARGEN = 60; // aire a los costados del primer y el último hito
+
 function anchoSegmento(dias) {
-  // Escala logarítmica con techo: crece con el tiempo real transcurrido,
-  // pero un salto de años no estira el eje sin límite ni aplasta el resto.
-  return Math.round(Math.min(240, 28 + 30 * Math.log2(dias + 1)));
+  // Escala logarítmica con piso y techo: la separación entre pósters
+  // crece con el tiempo real transcurrido entre una peli y la siguiente,
+  // pero nunca baja de lo que ocupa un póster (para que no se superpongan)
+  // ni un salto de meses estira el eje sin control.
+  return Math.round(Math.min(300, HITO_ANCHO + 22 + 25 * Math.log2(dias + 1)));
 }
 
 function pintarLineaTiempo(vistas) {
@@ -393,32 +436,48 @@ function pintarLineaTiempo(vistas) {
     return;
   }
 
+  // Posición horizontal (en px) de cada hito sobre el eje, proporcional
+  // a los días reales que pasaron entre una peli vista y la siguiente.
+  const posiciones = [HITO_MARGEN];
+  for (let i = 1; i < vistas.length; i++) {
+    const dias = diasEntre(vistas[i - 1].fechaVista, vistas[i].fechaVista);
+    posiciones.push(posiciones[i - 1] + anchoSegmento(dias));
+  }
+
   const pista = document.createElement("div");
   pista.className = "linea-tiempo-pista";
+  pista.style.width = `${posiciones[posiciones.length - 1] + HITO_MARGEN}px`;
+  pista.innerHTML = `<div class="linea-tiempo-eje"></div>`;
 
   vistas.forEach((peli, indice) => {
     if (indice > 0) {
       const dias = diasEntre(vistas[indice - 1].fechaVista, peli.fechaVista);
-      const segmento = document.createElement("div");
-      segmento.className = "segmento-tiempo";
-      segmento.style.width = `${anchoSegmento(dias)}px`;
-      segmento.innerHTML = `
-        <div class="segmento-espaciador"></div>
-        <div class="segmento-linea"></div>
-        ${dias >= 2 ? `<span class="segmento-etiqueta">${formatearGapTiempo(dias)}</span>` : ""}
-      `;
-      pista.appendChild(segmento);
+      if (dias >= 2) {
+        const puntoMedio = (posiciones[indice - 1] + posiciones[indice]) / 2;
+        const etiqueta = document.createElement("span");
+        etiqueta.className = "etiqueta-gap";
+        etiqueta.style.left = `${puntoMedio}px`;
+        etiqueta.textContent = formatearGapTiempo(dias);
+        pista.appendChild(etiqueta);
+      }
     }
+
     const hito = document.createElement("button");
     hito.type = "button";
-    hito.className = "hito-tiempo";
+    hito.className = `hito-tiempo ${indice % 2 === 0 ? "abajo" : "arriba"}`;
+    hito.style.left = `${posiciones[indice]}px`;
     hito.dataset.id = peli.id;
+    hito.title = peli.titulo;
     hito.innerHTML = `
-      ${peli.poster_path ? `<img src="${TMDB_IMG}${peli.poster_path}" alt="Póster de ${peli.titulo}" />` : `<div class="sin-poster">🎬</div>`}
-      <div class="hito-eje"></div>
+      <div class="hito-punto"></div>
+      <div class="hito-conector"></div>
+      ${
+        peli.poster_path
+          ? `<img class="hito-poster" src="${TMDB_IMG}${peli.poster_path}" alt="Póster de ${peli.titulo}" />`
+          : `<div class="sin-poster">🎬</div>`
+      }
       <span class="hito-fecha">${formatearFechaCorta(peli.fechaVista)}</span>
     `;
-    hito.title = peli.titulo;
     hito.addEventListener("click", () => abrirDetalle(peli.id));
     pista.appendChild(hito);
   });
@@ -428,7 +487,7 @@ function pintarLineaTiempo(vistas) {
 
   // arranca mostrando lo más reciente (a la derecha)
   requestAnimationFrame(() => {
-    pista.scrollLeft = pista.scrollWidth;
+    lineaTiempoEl.scrollLeft = lineaTiempoEl.scrollWidth;
   });
 }
 
